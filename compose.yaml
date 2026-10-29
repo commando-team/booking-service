@@ -25,6 +25,19 @@
 #    networks:
 #      - internal
   
+  prometheus:
+    image: prom/prometheus:v3
+    container_name: booking-service-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./deployment/prometheus.yaml:/etc/prometheus.yaml
+      - prometheus_data:/prometheus
+    command:
+      - --config.file=/etc/prometheus.yaml
+    networks:
+      - internal
+  
   jaeger:
     container_name: booking-service-jaeger
     image: jaegertracing/jaeger:2.22.0
@@ -36,4 +49,6 @@
 
 networks:
   internal:
-  
+
+volumes:
+  prometheus_data:

@@ -1,0 +1,39 @@
+﻿services:
+  api:
+    container_name: booking-service-api
+    build:
+      context: ./BookingService/API
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_HTTP_PORTS=8080
+      - OTLP_ENDPOINT=http://jaeger:4317
+    networks:
+      - internal
+  
+#  worker:
+#    container_name: booking-service-worker
+#    build:
+#      context: ./BookingService/Worker
+#    networks:
+#      - internal
+#        
+#  notification:
+#    container_name: booking-service-notification
+#    build:
+#      context: ./BookingService/Notification
+#    networks:
+#      - internal
+  
+  jaeger:
+    container_name: booking-service-jaeger
+    image: jaegertracing/jaeger:2.22.0
+    ports:
+      - "16686:16686" # ui
+      - "4317:4317" # otlp grpc
+    networks:
+      - internal
+
+networks:
+  internal:
+  

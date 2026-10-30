@@ -9,9 +9,9 @@ namespace API.Controllers;
 public class AuthController(IAuthService authService) : ControllerBase
 {
     [HttpPost]
-    public async Task<ActionResult<string>> Authenticate([FromBody] AuthRequest request)
+    public async Task<ActionResult<AuthResponse>> Authenticate([FromBody] AuthRequest request)
     {
         var token = await authService.Authenticate(request.Username, request.Password);
-        return Ok(token);
+        return Ok(new AuthResponse(token));
     }
 }

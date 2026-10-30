@@ -2,15 +2,13 @@ using System.Text;
 using API.Handlers;
 using API.Interfaces;
 using API.Options;
-using API.Persistence;
-using API.Persistence.Repositories;
 using API.Repositories;
 using API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using MongoDB.Driver;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -107,18 +105,10 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
-var connectionString = builder.Configuration.GetConnectionString("Postgres");
-builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
+var connectionString = builder.Configuration.GetConnectionString("Mongo");
+builder.Services.AddSingleton(new MongoClient(connectionString).GetDatabase("booking-service"));
 
 var app = builder.Build();
-
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    await dbContext.Database.EnsureDeletedAsync();
-    await dbContext.Database.EnsureCreatedAsync();
-    // await dbContext.Database.MigrateAsync();
-}
 
 app.MapPrometheusScrapingEndpoint();
 

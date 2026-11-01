@@ -18,7 +18,7 @@ public class AuthService(
             var passwordHash = passwordHasher.Hash(password);
             user = new User(username, passwordHash);
         
-            await userRepository.Add(user);
+            await userRepository.AddAsync(user);
         }
         else if (!passwordHasher.Verify(password, user.PasswordHash))
         {

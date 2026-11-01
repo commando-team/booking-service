@@ -5,16 +5,16 @@ namespace API.Repositories;
 
 public class UserRepository(IMongoDatabase db) : IUserRepository
 {
-    private readonly IMongoCollection<User> userCollection = db.GetCollection<User>(CollectionName);
     private const string CollectionName = "users";
-    
-    public async Task Add(User user)
+    private readonly IMongoCollection<User> _collection = db.GetCollection<User>(CollectionName);
+
+    public async Task AddAsync(User user)
     {
-        await userCollection.InsertOneAsync(user);
+        await _collection.InsertOneAsync(user);
     }
 
     public async Task<User?> GetByUsernameAsync(string username)
     {
-        return await userCollection.Find(x => x.Username == username).FirstOrDefaultAsync();
+        return await _collection.Find(x => x.Username == username).FirstOrDefaultAsync();
     }
 }

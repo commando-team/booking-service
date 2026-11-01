@@ -5,12 +5,10 @@ namespace API.Entities;
 
 public class User
 {
-    [BsonElement]
-    [BsonGuidRepresentation(GuidRepresentation.Standard)]
+    [BsonId]
     public Guid Id { get; private set; }
-    [BsonElement]
+    
     public string Username { get; private set; }
-    [BsonElement]
     public string PasswordHash {get; private set;}
 
     [BsonConstructor]
@@ -21,10 +19,5 @@ public class User
         PasswordHash = passwordHash;
     }
     
-    public User(string username, string passwordHash)
-    {
-        Id = Guid.NewGuid();
-        Username = username;
-        PasswordHash = passwordHash;
-    }
+    public User(string username, string passwordHash) : this(Guid.NewGuid(), username, passwordHash) {}
 }

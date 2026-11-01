@@ -4,7 +4,7 @@ namespace API.Repositories;
 
 public interface IUserRepository
 {
-    Task Add(User user);
+    Task AddAsync(User user);
     
     Task<User?> GetByUsernameAsync(string username);
 }

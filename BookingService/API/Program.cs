@@ -113,9 +113,11 @@ builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<IResourceService, ResourceService>();
+builder.Services.AddScoped<IBookingService, BookingService>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IResourceRepository, ResourceRepository>();
+builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 
 var connectionString = builder.Configuration.GetConnectionString("Mongo");
 builder.Services.AddSingleton(new MongoClient(connectionString).GetDatabase("booking-service"));

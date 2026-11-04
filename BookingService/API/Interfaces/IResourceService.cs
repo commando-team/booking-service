@@ -4,9 +4,9 @@ namespace API.Interfaces;
 
 public interface IResourceService
 {
-    Task<BookableResource> GetResource(Guid id);
+    Task<BookableResource> GetResource(Guid resourceId);
     
     Task<Guid> CreateResource(string name, int capacity);
     
-    Task DeleteResource(Guid id);
+    Task DeleteResource(Guid resourceId);
 }

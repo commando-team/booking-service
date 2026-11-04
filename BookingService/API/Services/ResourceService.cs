@@ -6,11 +6,11 @@ namespace API.Services;
 
 public class ResourceService(IResourceRepository resourceRepository, ICurrentUserService currentUserService) : IResourceService
 {
-    public async Task<BookableResource> GetResource(Guid id)
+    public async Task<BookableResource> GetResource(Guid resourceId)
     {
-        var resource = await resourceRepository.GetByIdAsync(id);
+        var resource = await resourceRepository.GetByIdAsync(resourceId);
         if (resource is null)
-            throw new Exception($"Resource with id {id} not found");
+            throw new Exception($"Resource not found");
         return resource;
     }
 
@@ -21,15 +21,15 @@ public class ResourceService(IResourceRepository resourceRepository, ICurrentUse
         return resource.Id;
     }
 
-    public async Task DeleteResource(Guid id)
+    public async Task DeleteResource(Guid resourceId)
     {
-        var resource = await resourceRepository.GetByIdAsync(id);
+        var resource = await resourceRepository.GetByIdAsync(resourceId);
         if (resource is null)
-            throw new Exception($"Resource with id {id} not found");
+            throw new Exception("Resource not found");
         
         if (resource.OwnerId != currentUserService.UserId)
             throw new Exception("You are not authorized to delete this resource");
         
-        await resourceRepository.DeleteAsync(id);
+        await resourceRepository.DeleteAsync(resourceId);
     }
 }

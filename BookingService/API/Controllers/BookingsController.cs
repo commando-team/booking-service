@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using API.Dto.Booking;
+using API.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -6,33 +8,33 @@ namespace API.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public class BookingsController : ControllerBase
+public class BookingsController(IBookingService bookingService) : ControllerBase
 {
     [HttpPost]
-    public async Task Create()
+    public async Task<IActionResult> CreateBooking([FromBody] CreateBookingRequest request)
     {
-        // create booking
-        throw new NotImplementedException();
+        var id = await bookingService.CreateBooking(request.ResourceId, request.From, request.To);
+        return CreatedAtRoute(nameof(GetBookingById), new {id = id}, id);
     }
     
-    [HttpGet("{id:guid}")]
-    public async Task Get(Guid id)
+    [HttpGet("{id:guid}", Name = nameof(GetBookingById))]
+    public async Task<ActionResult<GetBookingResponse>> GetBookingById(Guid id)
     {
-        // get booking status
-        throw new NotImplementedException();
+        var booking = await bookingService.GetBooking(id);
+        return Ok(new GetBookingResponse(booking.ResourceId, booking.From, booking.To, booking.Confirmed));
     }
     
     [HttpPost("{id:guid}")]
-    public async Task Confirm(Guid id)
+    public async Task<IActionResult> ConfirmBooking(Guid id)
     {
-        // confirm your booking
-        throw new NotImplementedException();
+        await bookingService.ConfirmBooking(id);
+        return Ok();
     }
     
     [HttpDelete("{id:guid}")]
-    public async Task Cancel(Guid id)
+    public async Task<IActionResult> CancelBooking(Guid id)
     {
-        // cancel your booking
-        throw new NotImplementedException();
+        await bookingService.CancelBooking(id);
+        return NoContent();
     }
 }

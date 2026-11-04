@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using API.Dto.Resource;
+using API.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -6,19 +8,26 @@ namespace API.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public class ResourcesController : ControllerBase
+public class ResourcesController(IResourceService resourceService) : ControllerBase
 {
-    [HttpPost]
-    public async Task Create()
+    [HttpGet("{id:guid}", Name = nameof(GetResourceById))]
+    public async Task<ActionResult<GetResourceResponse>> GetResourceById(Guid id)
     {
-        // create bookable resource
-        throw new NotImplementedException();
+        var resource = await resourceService.GetResource(id);
+        return Ok(new GetResourceResponse(resource.Name, resource.Capacity));
+    }
+    
+    [HttpPost]
+    public async Task<IActionResult> CreateResource([FromBody] CreateResourceRequest request)
+    {
+        var id = await resourceService.CreateResource(request.Name, request.Capacity);
+        return CreatedAtRoute(nameof(GetResourceById), new {id = id}, id);
     }
     
     [HttpDelete("{id:guid}")]
-    public async Task Delete(Guid id)
+    public async Task<IActionResult> Delete(Guid id)
     {
-        // delete bookable resource
-        throw new NotImplementedException();
+        await resourceService.DeleteResource(id);
+        return NoContent();
     }
 }

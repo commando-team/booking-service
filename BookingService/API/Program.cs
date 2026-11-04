@@ -49,6 +49,8 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
@@ -89,10 +91,12 @@ builder.Services.AddOpenTelemetry()
     .WithMetrics(metrics => metrics
         .AddAspNetCoreInstrumentation()
         .AddPrometheusExporter()
-    ).WithTracing(tracing =>
+    )
+    .WithTracing(tracing =>
         {
             tracing.AddAspNetCoreInstrumentation();
             tracing.AddHttpClientInstrumentation();
+            tracing.AddSource("MongoDB.Driver");
             if (!string.IsNullOrEmpty(tracingOtlpEndpoint))
             {
                 tracing.AddOtlpExporter(options => options.Endpoint =  new Uri(tracingOtlpEndpoint));
@@ -108,8 +112,10 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+builder.Services.AddScoped<IResourceService, ResourceService>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IResourceRepository, ResourceRepository>();
 
 var connectionString = builder.Configuration.GetConnectionString("Mongo");
 builder.Services.AddSingleton(new MongoClient(connectionString).GetDatabase("booking-service"));

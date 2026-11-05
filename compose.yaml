@@ -9,6 +9,10 @@
       ASPNETCORE_HTTP_PORTS: 8080
       OTLP_ENDPOINT: http://jaeger:4317
       ConnectionStrings__Mongo: mongodb://mongo:27017
+      RabbitMQ__Host: rabbit
+    depends_on:
+      - mongo
+      - rabbit
     networks:
       - internal
   
@@ -18,13 +22,20 @@
 #      context: ./BookingService/Worker
 #    networks:
 #      - internal
-#        
-#  notification:
-#    container_name: booking-service-notification
-#    build:
-#      context: ./BookingService/Notification
-#    networks:
-#      - internal
+
+  notification:
+    container_name: booking-service-notification
+    build:
+      context: ./BookingService/Notification
+    ports:
+      - "8081:8081"
+    environment:
+      ASPNETCORE_HTTP_PORTS: 8081
+      RabbitMQ__Host: rabbit
+    depends_on:
+      - rabbit
+    networks:
+      - internal
   
   mongo:
     image: mongodb/mongodb-community-server:9.0-ubi9-slim
@@ -32,7 +43,18 @@
     volumes:
       - mongo_data:/data/db
     ports:
-      - "27018:27017"
+      - "27017:27017"
+    networks:
+      - internal
+  
+  rabbit:
+    image: rabbitmq:4.3.7-management
+    container_name: booking-service-rabbitmq
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq/mnesia
+    ports:
+      - "5672:5672"
+      - "15672:15672"
     networks:
       - internal
   
@@ -63,4 +85,5 @@ networks:
 
 volumes:
   mongo_data:
+  rabbitmq_data:
   prometheus_data:

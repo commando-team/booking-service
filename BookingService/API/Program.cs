@@ -4,6 +4,7 @@ using API.Interfaces;
 using API.Options;
 using API.Repositories;
 using API.Services;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -26,8 +27,6 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
-
-var tracingOtlpEndpoint = builder.Configuration["OTLP_ENDPOINT"];
 
 builder.Services.AddSerilog();
 
@@ -97,9 +96,11 @@ builder.Services.AddOpenTelemetry()
             tracing.AddAspNetCoreInstrumentation();
             tracing.AddHttpClientInstrumentation();
             tracing.AddSource("MongoDB.Driver");
+            
+            var tracingOtlpEndpoint = builder.Configuration["OTLP_ENDPOINT"];
             if (!string.IsNullOrEmpty(tracingOtlpEndpoint))
             {
-                tracing.AddOtlpExporter(options => options.Endpoint =  new Uri(tracingOtlpEndpoint));
+                tracing.AddOtlpExporter(options => options.Endpoint = new Uri(tracingOtlpEndpoint));
             }
             else
             {
@@ -121,6 +122,19 @@ builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 
 var connectionString = builder.Configuration.GetConnectionString("Mongo");
 builder.Services.AddSingleton(new MongoClient(connectionString).GetDatabase("booking-service"));
+
+builder.Services.AddMassTransit(x =>
+{
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        var rabbitHost = builder.Configuration["RabbitMQ:Host"] ?? "localhost";
+        cfg.Host(rabbitHost, "/", h => {
+            h.Username("guest");
+            h.Password("guest");
+        });
+        cfg.UseMessageRetry(r => r.Immediate(2));
+    });
+});
 
 var app = builder.Build();
 

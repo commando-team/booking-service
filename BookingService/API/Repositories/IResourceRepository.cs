@@ -4,7 +4,12 @@ namespace API.Repositories;
 
 public interface IResourceRepository
 {
-    Task<IReadOnlyList<BookableResource>> GetAllAsync();
+    Task<(IReadOnlyList<BookableResource> Items, long TotalCount)> GetPagedAsync(
+        string? search,
+        Guid? ownerId,
+        int page,
+        int pageSize
+    );
     
     Task<BookableResource?> GetByIdAsync(Guid id);
     

@@ -1,3 +1,8 @@
 ﻿namespace API.Dto.Resource;
 
-public record GetResourceResponse(Guid Id, string Name);
+public record GetResourceResponse(
+    Guid Id,
+    string Name,
+    Guid OwnerId,
+    IReadOnlyList<BookedTimeSlotResponse> BookedSlots
+);

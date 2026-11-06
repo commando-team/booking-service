@@ -1,16 +1,17 @@
-﻿using API.Entities;
+﻿using API.Dto.Common;
+using API.Dto.Resource;
 
 namespace API.Interfaces;
 
 public interface IResourceService
 {
-    Task<IReadOnlyList<BookableResource>> GetAllResources();
+    Task<PagedResult<GetResourceResponse>> GetResources(GetResourcesFilterQuery filter);
     
-    Task<BookableResource> GetResource(Guid resourceId);
+    Task<GetResourceResponse> GetResource(Guid resourceId);
     
-    Task<Guid> CreateResource(string name, int capacity);
+    Task<Guid> CreateResource(string name);
     
-    Task UpdateResource(Guid resourceId, string name, int capacity);
+    Task UpdateResource(Guid resourceId, string name);
     
     Task DeleteResource(Guid resourceId);
 }

@@ -10,6 +10,12 @@ public interface IBookingRepository
     Task AddAsync(Booking booking);
     
     Task<Booking?> GetByTimeSpanAsync(Guid resourceId, DateTimeOffset from, DateTimeOffset to);
+    
+    Task<IReadOnlyList<Booking>> GetActiveBookingsByResourceIdsAsync(
+        IEnumerable<Guid> resourceIds,
+        DateTimeOffset from,
+        DateTimeOffset to
+    );
 
     Task UpdateStatusAsync(Guid bookingId, BookingStatus status);
     

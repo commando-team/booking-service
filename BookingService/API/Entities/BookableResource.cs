@@ -21,4 +21,10 @@ public class BookableResource
     }
     
     public BookableResource(Guid ownerId, string name, int capacity) :  this(Guid.NewGuid(), ownerId, name, capacity) {}
+    
+    public void Update(string name, int capacity)
+    {
+        Name = name;
+        Capacity = capacity;
+    }
 }

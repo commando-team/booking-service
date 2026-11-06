@@ -1,4 +1,5 @@
 ﻿using API.Entities;
+using Shared.Enums;
 
 namespace API.Repositories;
 
@@ -10,7 +11,7 @@ public interface IBookingRepository
     
     Task<Booking?> GetByTimeSpanAsync(Guid resourceId, DateTimeOffset from, DateTimeOffset to);
 
-    Task ConfirmAsync(Guid bookingId);
+    Task UpdateStatusAsync(Guid bookingId, BookingStatus status);
     
     Task DeleteAsync(Guid bookingId);
 }

@@ -1,5 +1,6 @@
 ﻿using API.Entities;
 using MongoDB.Driver;
+using Shared.Enums;
 
 namespace API.Repositories;
 
@@ -23,10 +24,9 @@ public class BookingRepository(IMongoDatabase db) : IBookingRepository
         return await _collection.Find(b => b.ResourceId == resourceId && (b.From < to && b.To > from)).FirstOrDefaultAsync();
     }
 
-    public async Task ConfirmAsync(Guid bookingId)
+    public async Task UpdateStatusAsync(Guid bookingId, BookingStatus status)
     {
-        var update = Builders<Booking>.Update.Set(b => b.Confirmed, true);
-        
+        var update = Builders<Booking>.Update.Set(b => b.Status, status);
         await _collection.UpdateOneAsync(b => b.Id == bookingId, update);
     }
 

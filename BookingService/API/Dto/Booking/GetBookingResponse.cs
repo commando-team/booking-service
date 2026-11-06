@@ -1,3 +1,13 @@
-﻿namespace API.Dto.Booking;
+﻿using Shared.Enums;
 
-public record GetBookingResponse(Guid ResourceId, DateTimeOffset From, DateTimeOffset To, bool Confirmed);
+namespace API.Dto.Booking;
+
+public record GetBookingResponse(
+    Guid Id,
+    Guid ResourceId,
+    Guid UserId,
+    DateTimeOffset From,
+    DateTimeOffset To,
+    BookingStatus Status,
+    bool Confirmed
+);

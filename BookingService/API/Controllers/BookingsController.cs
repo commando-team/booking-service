@@ -21,7 +21,15 @@ public class BookingsController(IBookingService bookingService) : ControllerBase
     public async Task<ActionResult<GetBookingResponse>> GetBookingById(Guid id)
     {
         var booking = await bookingService.GetBooking(id);
-        return Ok(new GetBookingResponse(booking.ResourceId, booking.From, booking.To, booking.Confirmed));
+        return Ok(new GetBookingResponse(
+            booking.Id,
+            booking.ResourceId,
+            booking.UserId,
+            booking.From,
+            booking.To,
+            booking.Status,
+            booking.Confirmed)
+        );
     }
     
     [HttpPost("{id:guid}")]

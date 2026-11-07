@@ -3,6 +3,8 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
+using Worker.Services;
+using Worker.Workers;
 
 BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
 
@@ -29,8 +31,11 @@ builder.Services.AddMassTransit(x =>
     });
 });
 
+builder.Services.AddSingleton<ILeaseLockService, MongoLeaseLockService>();
+builder.Services.AddHostedService<ExpiredBookingsWorker>();
+
 var app = builder.Build();
 
-app.MapGet("/", () => "Worker service initialized");
+app.MapGet("/", () => "Booking Worker is running");
 
 app.Run();

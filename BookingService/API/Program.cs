@@ -123,18 +123,25 @@ builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 var connectionString = builder.Configuration.GetConnectionString("Mongo");
 builder.Services.AddSingleton(new MongoClient(connectionString).GetDatabase("booking-service"));
 
-builder.Services.AddMassTransit(x =>
+if (builder.Environment.IsEnvironment("Testing"))
 {
-    x.UsingRabbitMq((context, cfg) =>
+    builder.Services.AddMassTransit(x => x.UsingInMemory((_, _) => { }));
+}
+else
+{
+    builder.Services.AddMassTransit(x =>
     {
-        var rabbitHost = builder.Configuration["RabbitMQ:Host"] ?? "localhost";
-        cfg.Host(rabbitHost, "/", h => {
-            h.Username("guest");
-            h.Password("guest");
+        x.UsingRabbitMq((context, cfg) =>
+        {
+            var rabbitHost = builder.Configuration["RabbitMQ:Host"] ?? "localhost";
+            cfg.Host(rabbitHost, "/", h => {
+                h.Username("guest");
+                h.Password("guest");
+            });
+            cfg.UseMessageRetry(r => r.Immediate(2));
         });
-        cfg.UseMessageRetry(r => r.Immediate(2));
     });
-});
+}
 
 var app = builder.Build();
 
@@ -153,3 +160,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+public partial class Program;

@@ -10,19 +10,19 @@ public static class BookingMetrics
 
     private static readonly Counter<long> Created = Meter.CreateCounter<long>(
         "bookings.created",
-        description: "Number of bookings created.");
+        description: "Number of bookings created");
 
     private static readonly Counter<long> Confirmed = Meter.CreateCounter<long>(
         "bookings.confirmed",
-        description: "Number of bookings confirmed by check-in.");
+        description: "Number of bookings confirmed by checkin");
 
     private static readonly Counter<long> Cancelled = Meter.CreateCounter<long>(
         "bookings.cancelled",
-        description: "Number of bookings cancelled.");
+        description: "Number of bookings cancelled");
 
     private static readonly Counter<long> Conflicts = Meter.CreateCounter<long>(
         "bookings.conflicts",
-        description: "Number of booking attempts rejected because the time slot is already taken.");
+        description: "Number of booking attempts rejected because time is taken");
 
     public static void BookingCreated() => Created.Add(1);
 

@@ -7,3 +7,16 @@ scrape_configs:
     metrics_path: "/metrics"
     static_configs:
       - targets: [ "api:8080" ]
+
+  - job_name: "booking-notification"
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: [ "notification:8081" ]
+
+  # per-queue metrics (queue lengths) from the built-in rabbitmq_prometheus plugin
+  - job_name: "rabbitmq"
+    metrics_path: "/metrics/detailed"
+    params:
+      family: [ "queue_coarse_metrics" ]
+    static_configs:
+      - targets: [ "rabbit:15692" ]

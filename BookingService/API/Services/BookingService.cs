@@ -2,6 +2,7 @@
 using API.Exceptions;
 using API.Interfaces;
 using API.Repositories;
+using API.Telemetry;
 using MassTransit;
 using Shared.Enums;
 using Shared.Events;
@@ -38,10 +39,14 @@ public class BookingService(
 
         var overlappingBooking = await bookingRepository.GetByTimeSpanAsync(resourceId, from, to);
         if (overlappingBooking is not null)
+        {
+            BookingMetrics.BookingConflict();
             throw new ConflictException("The selected time slot is already booked.");
-        
+        }
+
         var booking = new Booking(resourceId, currentUserService.UserId, from, to);
         await bookingRepository.AddAsync(booking);
+        BookingMetrics.BookingCreated();
 
         await publishEndpoint.Publish(new BookingCreatedEvent(
             booking.Id,
@@ -71,6 +76,7 @@ public class BookingService(
             return;
         
         await bookingRepository.UpdateStatusAsync(bookingId, BookingStatus.Confirmed);
+        BookingMetrics.BookingConfirmed();
 
         await publishEndpoint.Publish(new BookingStatusChangedEvent(
             booking.Id,
@@ -94,6 +100,7 @@ public class BookingService(
             return;
         
         await bookingRepository.UpdateStatusAsync(booking.Id, BookingStatus.Cancelled);
+        BookingMetrics.BookingCancelledByUser();
 
         var cancelledAt = DateTimeOffset.UtcNow;
 

@@ -4,6 +4,7 @@ using API.Interfaces;
 using API.Options;
 using API.Repositories;
 using API.Services;
+using API.Telemetry;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
@@ -89,6 +90,9 @@ builder.Services.AddOpenTelemetry()
     .ConfigureResource(resource => resource.AddService(builder.Environment.ApplicationName))
     .WithMetrics(metrics => metrics
         .AddAspNetCoreInstrumentation()
+        .AddMeter(BookingMetrics.MeterName)
+        .AddMeter("MassTransit")
+        .AddMeter("System.Runtime")
         .AddPrometheusExporter()
     )
     .WithTracing(tracing =>

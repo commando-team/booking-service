@@ -12,20 +12,20 @@ public class ExpiredBookingsWorker : BackgroundService
     private const string LockKey = "expired-bookings-processor";
     private readonly IMongoCollection<Booking> _bookingsCollection;
     private readonly ILeaseLockService _leaseLock;
-    private readonly IPublishEndpoint _publishEndpoint;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly IConfiguration _configuration;
     private readonly ILogger<ExpiredBookingsWorker> _logger;
 
     public ExpiredBookingsWorker(
         IMongoDatabase database,
         ILeaseLockService leaseLock,
-        IPublishEndpoint publishEndpoint,
+        IServiceScopeFactory scopeFactory,
         IConfiguration configuration,
         ILogger<ExpiredBookingsWorker> logger)
     {
         _bookingsCollection = database.GetCollection<Booking>("bookings");
         _leaseLock = leaseLock;
-        _publishEndpoint = publishEndpoint;
+        _scopeFactory = scopeFactory;
         _configuration = configuration;
         _logger = logger;
     }
@@ -57,7 +57,10 @@ public class ExpiredBookingsWorker : BackgroundService
 
                 try
                 {
-                    await ProcessExpiredBookingsAsync(expirationMinutes, stoppingToken);
+                    using var scope = _scopeFactory.CreateScope();
+                    var publishEndpoint = scope.ServiceProvider.GetRequiredService<IPublishEndpoint>();
+
+                    await ProcessExpiredBookingsAsync(publishEndpoint, expirationMinutes, stoppingToken);
                 }
                 finally
                 {
@@ -71,7 +74,7 @@ public class ExpiredBookingsWorker : BackgroundService
         }
     }
 
-    private async Task ProcessExpiredBookingsAsync(int expirationMinutes, CancellationToken ct)
+    private async Task ProcessExpiredBookingsAsync(IPublishEndpoint publishEndpoint, int expirationMinutes, CancellationToken ct)
     {
         var threshold = DateTimeOffset.UtcNow.AddMinutes(-expirationMinutes);
 
@@ -103,14 +106,14 @@ public class ExpiredBookingsWorker : BackgroundService
             {
                 var now = DateTimeOffset.UtcNow;
 
-                await _publishEndpoint.Publish(new BookingStatusChangedEvent(
+                await publishEndpoint.Publish(new BookingStatusChangedEvent(
                     booking.Id,
                     booking.ResourceId,
                     booking.UserId,
                     BookingStatus.AutoCancelled,
                     now), ct);
 
-                await _publishEndpoint.Publish(new BookingCancelledEvent(
+                await publishEndpoint.Publish(new BookingCancelledEvent(
                     booking.Id,
                     booking.ResourceId,
                     booking.UserId,

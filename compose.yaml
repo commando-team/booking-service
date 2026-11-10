@@ -23,7 +23,7 @@
       context: ./BookingService
       dockerfile: Worker/Dockerfile
     environment:
-      ASPNETCORE_HTTP_PORTS: 8080
+      ASPNETCORE_HTTP_PORTS: 8082
       ConnectionStrings__Mongo: mongodb://mongo:27017
       RabbitMQ__Host: rabbit
       Worker__ScanIntervalSeconds: 30
